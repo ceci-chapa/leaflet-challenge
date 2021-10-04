@@ -7,14 +7,16 @@ d3.json(queryUrl).then(function (data) {
 
     // Define a function that we want to run once for each feature in the features array.
     // Give each feature a popup that describes the place and time of the earthquake.
-    function onEachFeature(feature, layer) {
+    function bindPopupToEarthQuake(feature, layer) {
         layer.bindPopup(`<h3>${feature.properties.place}</h3><hr><p>${new Date(feature.properties.time)}</p>`);
     }
-
+    //START HERE
     // Create a GeoJSON layer that contains the features array on the earthquakeData object.
     // Run the onEachFeature function once for each piece of data in the array.
     var earthquakes = L.geoJSON(data.features, {
-        onEachFeature: onEachFeature
+        onEachFeature: bindPopupToEarthQuake,
+        style: generatesyle, 
+        pointToLayer: generateEarthQuakeMarker
     });
 
 
