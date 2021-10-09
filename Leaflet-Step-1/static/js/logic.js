@@ -12,14 +12,24 @@ d3.json(queryUrl).then(function (data) {
     }
 
     //START HERE
+    var myStyle = {
+        "color": "#ff7800",
+        "weight": 5,
+        "opacity": 0.65
+    };
+    
+    var earthquakes = L.geoJSON(data.features, {
+            onEachFeature: bindPopupToEarthQuake,
+            style: myStyle
+    });
 
     // Create a GeoJSON layer that contains the features array on the earthquakeData object.
     // Run the onEachFeature function once for each piece of data in the array.
-    var earthquakes = L.geoJSON(data.features, {
-        onEachFeature: bindPopupToEarthQuake,
-        style: generatesyle,
-        pointToLayer: generateEarthQuakeMarker
-    });
+    // var earthquakes = L.geoJSON(data.features, {
+    //     onEachFeature: bindPopupToEarthQuake,
+    //     style: generatesyle,
+    //     pointToLayer: generateEarthQuakeMarker
+    // });
 
 
     // Create the base layers.
