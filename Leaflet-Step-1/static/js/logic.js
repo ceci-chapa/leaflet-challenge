@@ -10,19 +10,27 @@ d3.json(queryUrl).then(function (data) {
     function bindPopupToEarthQuake(feature, layer) {
         layer.bindPopup(`<h3>${feature.properties.place}</h3><hr><p>${new Date(feature.properties.time)}</p>`);
     }
+
     //START HERE
+
     // Create a GeoJSON layer that contains the features array on the earthquakeData object.
     // Run the onEachFeature function once for each piece of data in the array.
     var earthquakes = L.geoJSON(data.features, {
         onEachFeature: bindPopupToEarthQuake,
-        style: generatesyle, 
+        style: generatesyle,
         pointToLayer: generateEarthQuakeMarker
     });
 
 
     // Create the base layers.
-    var street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    var street = L.tileLayer('https://api.mapbox.com/styles/v1/%7Bid%7D/tiles/%7Bz%7D/%7Bx%7D/%7By%7D?access_token={accessToken}', {
+
+        attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
+        tileSize: 1,
+        maxZoom: 1,
+        zoomOffset: -1,
+        id: "mapbox/light-v10",
+        accessToken: API_KEY
     })
 
     var topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
@@ -32,7 +40,7 @@ d3.json(queryUrl).then(function (data) {
     // Create a baseMaps object.
     var baseMaps = {
         "Street Map": street,
-        "Topographic Map": topo
+        // "Topographic Map": topo
     };
 
     // Create an overlay object to hold our overlay.
