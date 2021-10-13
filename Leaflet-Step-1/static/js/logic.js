@@ -12,15 +12,43 @@ d3.json(queryUrl).then(function (data) {
     }
 
     //START HERE
-    var myStyle = {
-        "color": "#ff7800",
-        "weight": 5,
-        "opacity": 0.65
+    var myStyle = (feature) => {
+        return {
+        
+            "color": getColor (feature.geometry.coordinates[2]),
+            "weight": 5,
+            "opacity": 0.65,
+            "radius": getSize(feature.properties.mag)
+        }
     };
-    
+
+    var getSize = (mag) => {
+        if (mag == 0) {
+            return 1
+        }
+        else {
+            return mag * 5
+        }
+    }
+
+    var getColor = (depth) => {
+        if (depth > 90) {
+            return "red"
+        }
+        else if (depth > 70) {
+            return "yellow"
+        }
+        else {
+            return "green"
+        }
+    }
+
     var earthquakes = L.geoJSON(data.features, {
-            onEachFeature: bindPopupToEarthQuake,
-            style: myStyle
+        pointToLayer: (feature, cord) => {
+            return L.circleMarker(cord)
+        },
+        onEachFeature: bindPopupToEarthQuake,
+        style: myStyle
     });
 
     // Create a GeoJSON layer that contains the features array on the earthquakeData object.
@@ -33,7 +61,7 @@ d3.json(queryUrl).then(function (data) {
 
 
     // Create the base layers.
-    var street = L.tileLayer('https://api.mapbox.com/styles/v1/%7Bid%7D/tiles/%7Bz%7D/%7Bx%7D/%7By%7D?access_token={accessToken}', {
+    var street = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
 
         attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
         tileSize: 1,
@@ -43,14 +71,19 @@ d3.json(queryUrl).then(function (data) {
         accessToken: API_KEY
     })
 
-    var topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    var topo = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
+        attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+    });
+
+    var land = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}.png', {
         attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
     });
 
     // Create a baseMaps object.
     var baseMaps = {
-        "Street Map": street,
-        // "Topographic Map": topo
+        // "Street Map": street,
+        "Dark Mode": topo,
+        "Light Mode": land
     };
 
     // Create an overlay object to hold our overlay.
@@ -64,7 +97,7 @@ d3.json(queryUrl).then(function (data) {
             22, 0
         ],
         zoom: 2,
-        layers: [street, earthquakes]
+        layers: [topo, earthquakes]
     });
 
     // Create a layer control.
